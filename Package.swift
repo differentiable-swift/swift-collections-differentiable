@@ -15,26 +15,26 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.4"),
+        .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.4")
     ],
     targets: [
         .target(
             name: "CollectionsDifferentiable",
             dependencies: [
                 .product(name: "Collections", package: "swift-collections"),
-                "OrderedCollectionsDifferentiable"
+                "OrderedCollectionsDifferentiable",
             ]
         ),
         .target(
             name: "OrderedCollectionsDifferentiable",
             dependencies: [
-                .product(name: "OrderedCollections", package: "swift-collections"),
+                .product(name: "OrderedCollections", package: "swift-collections")
             ]
         ),
         .testTarget(
             name: "OrderedCollectionsDifferentiableTests",
             dependencies: [
-                "OrderedCollectionsDifferentiable",
+                "OrderedCollectionsDifferentiable"
             ]
         ),
     ]
