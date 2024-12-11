@@ -2,3 +2,8 @@
 @_exported import Collections
 // Swift Collection modules with Differentiable extensions
 @_exported import OrderedCollectionsDifferentiable
+
+// Export the differentiation module since we're trying to use its api
+#if canImport(_Differentiation)
+@_exported import _Differentiation
+#endif
