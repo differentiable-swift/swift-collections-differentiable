@@ -4,7 +4,7 @@ import _Differentiation
 
 extension OrderedDictionary: @retroactive Differentiable where Value: Differentiable {
     public typealias TangentVector = OrderedDictionary<Key, Value.TangentVector>
-    
+
     public mutating func move(by direction: TangentVector) {
         for (componentKey, componentDirection) in direction {
             func fatalMissingComponent() -> Value {
@@ -29,7 +29,8 @@ extension OrderedDictionary: @retroactive AdditiveArithmetic where Value: Additi
 }
 
 extension OrderedDictionary where Value: Differentiable {
-    /// Defines a derivative for `OrderedDictionary`s subscript getter enabling calls like `var value = dictionary[key]` to be differentiable
+    /// Defines a derivative for `OrderedDictionary`s subscript getter enabling calls like `var value = dictionary[key]` to be
+    /// differentiable
     @inlinable
     @derivative(of: subscript(_:))
     func _vjpSubscript(key: Key)
@@ -38,7 +39,8 @@ extension OrderedDictionary where Value: Differentiable {
         let keys = self.keys
         // When adding two dictionaries, nil values are equivalent to zeroes, so there is no need to manually zero-out
         // every key's value. Instead, it is faster to create a dictionary with the single non-zero entry.
-        // for ordered dictionaries however we can't because the keys will be added in reverse order so the tangentvector's key order will be different from the original
+        // for ordered dictionaries however we can't because the keys will be added in reverse order so the tangentvector's key order will
+        // be different from the original
         return (
             value: self[key],
             pullback: { tangentVector in
@@ -61,4 +63,3 @@ extension OrderedDictionary where Value: Differentiable {
 // TODO: make `OrderedDictionary.Values` and `OrderedDictionary.Elements` differentiable
 
 #endif
-

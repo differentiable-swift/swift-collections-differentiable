@@ -43,15 +43,17 @@ struct DictionaryDifferentiationTests {
         #expect(vwg.value == 140.0)
         #expect(vwg.gradient == ["s1": 1.0, "s2": 2.0, "s3": 3.0])
     }
-    
-    
-    
+
     @Test
     func testOrderedDictionaryInoutWriteMethod() {
         @differentiable(reverse)
-        func combineByReplacingDictionaryValues(of mainDict: inout OrderedDictionary<String, Double>, with otherDict: OrderedDictionary<String, Double>) {
+        func combineByReplacingDictionaryValues(
+            of mainDict: inout OrderedDictionary<String, Double>,
+            with otherDict: OrderedDictionary<String, Double>
+        ) {
             for key in withoutDerivative(at: otherDict.keys) {
-                // note that we cannot use #require here as this function cannot throw (due to current compiler constraints wrt differentiation)
+                // note that we cannot use #require here as this function cannot throw (due to current compiler constraints wrt
+                // differentiation)
                 // swift-format-ignore: NeverForceUnwrap
                 let otherValue = otherDict[key]!
                 mainDict.update(at: key, with: otherValue)
@@ -59,7 +61,10 @@ struct DictionaryDifferentiationTests {
         }
 
         @differentiable(reverse)
-        func inoutWrapper(dictionary: OrderedDictionary<String, Double>, otherDictionary: OrderedDictionary<String, Double>) -> OrderedDictionary<String, Double> {
+        func inoutWrapper(
+            dictionary: OrderedDictionary<String, Double>,
+            otherDictionary: OrderedDictionary<String, Double>
+        ) -> OrderedDictionary<String, Double> {
             // we wrap the `combineByReplacingDictionaryValues`
             var mainCopy = dictionary
             combineByReplacingDictionaryValues(of: &mainCopy, with: otherDictionary)
@@ -68,7 +73,7 @@ struct DictionaryDifferentiationTests {
 
         let vwpb = valueWithPullback(
             at: ["s1": 10.0, "s2": 20.0, "s3": 30.0],
-            ["s1": 2.0],  //, "s2": nil, "s3": nil],
+            ["s1": 2.0], // , "s2": nil, "s3": nil],
             of: inoutWrapper
         )
 
@@ -82,9 +87,13 @@ struct DictionaryDifferentiationTests {
     @Test
     func testInoutWriteAndSumValues() {
         @differentiable(reverse)
-        func combineByReplacingDictionaryValues(of mainDict: inout OrderedDictionary<String, Double>, with otherDict: OrderedDictionary<String, Double>) {
+        func combineByReplacingDictionaryValues(
+            of mainDict: inout OrderedDictionary<String, Double>,
+            with otherDict: OrderedDictionary<String, Double>
+        ) {
             for key in withoutDerivative(at: otherDict.keys) {
-                // note that we cannot use #require here as this function cannot throw (due to current compiler constraints wrt differentiation)
+                // note that we cannot use #require here as this function cannot throw (due to current compiler constraints wrt
+                // differentiation)
                 // swift-format-ignore: NeverForceUnwrap
                 let otherValue = otherDict[key]!
                 mainDict.update(at: key, with: otherValue)
@@ -93,17 +102,21 @@ struct DictionaryDifferentiationTests {
 
         @differentiable(reverse)
         func sumValues(of dictionary: OrderedDictionary<String, Double>) -> Double {
-            var sum: Double = 0.0
+            var sum = 0.0
             for key in withoutDerivative(at: dictionary.keys) {
-                // note that we cannot use #require here as this function cannot throw (due to current compiler constraints wrt differentiation)
+                // note that we cannot use #require here as this function cannot throw (due to current compiler constraints wrt
+                // differentiation)
                 // swift-format-ignore: NeverForceUnwrap
                 sum += dictionary[key]!
             }
             return sum
         }
-        @differentiable(reverse,wrt: dictionary)
+        @differentiable(reverse, wrt: dictionary)
 
-        func inoutWrapperAndSum(dictionary: OrderedDictionary<String, Double>, otherDictionary: OrderedDictionary<String, Double>) -> Double {
+        func inoutWrapperAndSum(
+            dictionary: OrderedDictionary<String, Double>,
+            otherDictionary: OrderedDictionary<String, Double>
+        ) -> Double {
             var mainCopy = dictionary
             combineByReplacingDictionaryValues(of: &mainCopy, with: otherDictionary)
             return sumValues(of: mainCopy)
@@ -111,7 +124,7 @@ struct DictionaryDifferentiationTests {
 
         let vwg = valueWithGradient(
             at: ["s1": 10.0, "s2": 20.0, "s3": 30.0],
-            ["s1": 2.0],  //, "s2": nil, "s3": nil],
+            ["s1": 2.0], // , "s2": nil, "s3": nil],
             of: inoutWrapperAndSum
         )
 
