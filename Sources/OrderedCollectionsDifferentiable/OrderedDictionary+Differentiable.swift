@@ -5,12 +5,12 @@ import _Differentiation
 extension OrderedDictionary: @retroactive Differentiable where Value: Differentiable {
     public typealias TangentVector = OrderedDictionary<Key, Value.TangentVector>
 
-    public mutating func move(by direction: TangentVector) {
-        for (componentKey, componentDirection) in direction {
+    public mutating func move(by offset: TangentVector) {
+        for (key, tangentValue) in offset {
             func fatalMissingComponent() -> Value {
-                preconditionFailure("missing component \(componentKey) in moved OrderedDictionary")
+                preconditionFailure("missing entry for key \(key) in moved OrderedDictionary")
             }
-            self[componentKey, default: fatalMissingComponent()].move(by: componentDirection)
+            self[key, default: fatalMissingComponent()].move(by: tangentValue)
         }
     }
 }
@@ -33,9 +33,10 @@ extension OrderedDictionary where Value: Differentiable {
     /// differentiable
     @inlinable
     @derivative(of: subscript(_:))
-    func _vjpSubscript(key: Key)
-        -> (value: Value?, pullback: (Optional<Value>.TangentVector) -> OrderedDictionary<Key, Value>.TangentVector)
-    {
+    func _vjpSubscript(key: Key) -> (
+        value: Value?,
+        pullback: (Optional<Value>.TangentVector) -> OrderedDictionary<Key, Value>.TangentVector
+    ) {
         let keys = self.keys
         // When adding two dictionaries, nil values are equivalent to zeroes, so there is no need to manually zero-out
         // every key's value. Instead, it is faster to create a dictionary with the single non-zero entry.
@@ -58,8 +59,26 @@ extension OrderedDictionary where Value: Differentiable {
             }
         )
     }
+
+    @derivative(of: values)
+    @inlinable
+    @inline(__always)
+    public func _vjpValues() -> (value: Values, pullback: (Values.TangentVector) -> OrderedDictionary<Key, Value>.TangentVector) {
+        let keys = self.keys
+        return (
+            value: self.values,
+            pullback: { v in
+                var dict = OrderedDictionary<Key, Value>.TangentVector()
+                dict.reserveCapacity(keys.count)
+                for (key, tangentValue) in zip(keys, v.base) {
+                    dict[key] = tangentValue
+                }
+                return dict
+            }
+        )
+    }
 }
 
-// TODO: make `OrderedDictionary.Values` and `OrderedDictionary.Elements` differentiable
+// TODO: make `OrderedDictionary.Elements` differentiable
 
 #endif

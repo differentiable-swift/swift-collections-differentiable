@@ -3,8 +3,8 @@
 import OrderedCollectionsDifferentiable
 import Testing
 
-@Suite("Dictionary+Differentiation")
-struct DictionaryDifferentiationTests {
+@Suite("OrderedDictionary+Differentiation")
+struct OrderedDictionaryDifferentiationTests {
     @Test
     func testSubscriptGet() throws {
         let dictionary: OrderedDictionary<String, Double> = ["a": 3, "b": 7]
