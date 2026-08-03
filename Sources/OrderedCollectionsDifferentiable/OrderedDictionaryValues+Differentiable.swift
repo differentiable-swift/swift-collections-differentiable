@@ -5,6 +5,7 @@ import _Differentiation
 extension OrderedDictionary.Values: @retroactive Differentiable where Value: Differentiable {
     public typealias TangentVector = Array<Value.TangentVector>.TangentVector
 
+    @inlinable
     public mutating func move(by offset: OrderedDictionary<Key, Value>.Values.TangentVector) {
         for (i, j) in zip(self.indices, offset.base.indices) {
             self[i].move(by: offset.base[j])
