@@ -1,0 +1,49 @@
+#if canImport(_Differentiation)
+
+import _Differentiation
+
+// accessors for the OrderedDictionary type.
+// These are a workaround as we cant define derivatives for `subscript._modify` yet
+
+extension OrderedDictionary where Value: Differentiable {
+    @inlinable
+    public subscript(ad key: Key) -> Value? {
+        // This uses the derivative from the non `ad:` prefixed subscript to not have to switch between using and not using it.
+        @differentiable(reverse)
+        get {
+            self[key]
+        }
+
+        // TODO: this is a workaround while we're unable to define a direct derivative for `subscript._modify`
+        @differentiable(reverse)
+        set {
+            self[key] = newValue
+        }
+    }
+
+    /// - Parameters:
+    ///     - key: The key to write the value at.
+    ///     - newValue: The value to write.
+    /// - Returns: The object, plus the pullback.
+    @derivative(of: subscript(ad:).set)
+    @inlinable
+    public mutating func _vjpSubscriptSet(
+        newValue: Value?,
+        ad key: Key
+    ) -> (value: Void, pullback: (inout TangentVector) -> (Value?.TangentVector)) {
+        self[key] = newValue
+
+        return ((), { tangentVector in
+            // The write overwrites the value at `key`, so the base's incoming adjoint at
+            // `key` flows out to `newValue`, and the base's pre-write adjoint at `key` is
+            // removed. All other keys pass through untouched, preserving their order. A
+            // missing key is definitionally zero in `OrderedDictionary.TangentVector`, so
+            // this stays sparse.
+            let dElement = tangentVector[key]
+            tangentVector[key] = nil
+            return Optional<Value>.TangentVector(dElement)
+        })
+    }
+}
+
+#endif
