@@ -56,7 +56,7 @@ struct OrderedDictionaryDifferentiationTests {
                 // differentiation)
                 // swift-format-ignore: NeverForceUnwrap
                 let otherValue = otherDict[key]!
-                mainDict.update(at: key, with: otherValue)
+                mainDict[ad: key] = otherValue
             }
         }
 
@@ -78,10 +78,10 @@ struct OrderedDictionaryDifferentiationTests {
         )
 
         #expect(vwpb.value == ["s1": 2.0, "s2": 20.0, "s3": 30.0])
-        // we need to provide a full tangentvector to the pullback hence the keys with zero entries.
-        #expect(vwpb.pullback(["s1": 1.0, "s2": 0.0, "s3": 0.0]) == (["s1": 0.0, "s2": 0.0, "s3": 0.0], ["s1": 1.0]))
-        #expect(vwpb.pullback(["s1": 0.0, "s2": 1.0, "s3": 0.0]) == (["s1": 0.0, "s2": 1.0, "s3": 0.0], ["s1": 0.0]))
-        #expect(vwpb.pullback(["s1": 0.0, "s2": 0.0, "s3": 1.0]) == (["s1": 0.0, "s2": 0.0, "s3": 1.0], ["s1": 0.0]))
+        // "s1" is overwritten by the setter, so it is dropped from the base gradient (a missing key is zero).
+        #expect(vwpb.pullback(["s1": 1.0, "s2": 0.0, "s3": 0.0]) == (["s2": 0.0, "s3": 0.0], ["s1": 1.0]))
+        #expect(vwpb.pullback(["s1": 0.0, "s2": 1.0, "s3": 0.0]) == (["s2": 1.0, "s3": 0.0], ["s1": 0.0]))
+        #expect(vwpb.pullback(["s1": 0.0, "s2": 0.0, "s3": 1.0]) == (["s2": 0.0, "s3": 1.0], ["s1": 0.0]))
     }
 
     @Test
@@ -96,7 +96,7 @@ struct OrderedDictionaryDifferentiationTests {
                 // differentiation)
                 // swift-format-ignore: NeverForceUnwrap
                 let otherValue = otherDict[key]!
-                mainDict.update(at: key, with: otherValue)
+                mainDict[ad: key] = otherValue
             }
         }
 
@@ -129,7 +129,8 @@ struct OrderedDictionaryDifferentiationTests {
         )
 
         #expect(vwg.value == 52.0)
-        #expect(vwg.gradient == (["s1": 0.0, "s2": 1.0, "s3": 1.0], ["s1": 1.0]))
+        // "s1" is overwritten by the setter, so it is dropped from the base gradient (a missing key is zero).
+        #expect(vwg.gradient == (["s2": 1.0, "s3": 1.0], ["s1": 1.0]))
     }
 }
 

@@ -20,7 +20,7 @@ let package = Package(
     ],
     dependencies: [
         .package(url: "https://github.com/apple/swift-collections.git", from: "1.1.4"),
-        .package(url: "https://github.com/differentiable-swift/swift-differentiation.git", from: "2.0.0"),
+        .package(url: "https://github.com/differentiable-swift/swift-differentiation.git", from: "3.0.0"),
     ],
     targets: [
         .target(
