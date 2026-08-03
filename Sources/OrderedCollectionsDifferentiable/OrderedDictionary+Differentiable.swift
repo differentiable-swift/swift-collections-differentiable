@@ -5,6 +5,7 @@ import _Differentiation
 extension OrderedDictionary: @retroactive Differentiable where Value: Differentiable {
     public typealias TangentVector = OrderedDictionary<Key, Value.TangentVector>
 
+    @inlinable
     public mutating func move(by offset: TangentVector) {
         for (key, tangentValue) in offset {
             func fatalMissingComponent() -> Value {
@@ -17,14 +18,17 @@ extension OrderedDictionary: @retroactive Differentiable where Value: Differenti
 
 /// Implements the `AdditiveArithmetic` requirements.
 extension OrderedDictionary: @retroactive AdditiveArithmetic where Value: AdditiveArithmetic {
+    @inlinable
     public static func + (_ lhs: Self, _ rhs: Self) -> Self {
         lhs.merging(rhs, uniquingKeysWith: +)
     }
 
+    @inlinable
     public static func - (_ lhs: Self, _ rhs: Self) -> Self {
         lhs.merging(rhs.mapValues { .zero - $0 }, uniquingKeysWith: +)
     }
 
+    @inlinable
     public static var zero: Self { [:] }
 }
 
